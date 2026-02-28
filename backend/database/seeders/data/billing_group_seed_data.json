@@ -1,0 +1,354 @@
+[
+  {
+    "billing_group": "50 ACER",
+    "area": "50 ACER",
+    "connections": 16,
+    "boxes": 16,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "ABBOTSLIGH",
+    "area": "ABBOTSLIGH",
+    "connections": 60,
+    "boxes": 62,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "BRODUC",
+    "area": "BRODUC",
+    "connections": 31,
+    "boxes": 31,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "COMMERCIAL",
+    "area": "COMMERCIAL",
+    "connections": 12,
+    "boxes": 23,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "DUNBAR LD",
+    "area": "DUNBAR LD",
+    "connections": 25,
+    "boxes": 25,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "DUNBAR UD",
+    "area": "DUNBAR UD",
+    "connections": 73,
+    "boxes": 73,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "DUNBAR SKEAM",
+    "area": "DUNBAR SKEAM",
+    "connections": 11,
+    "boxes": 11,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "FLORENCE",
+    "area": "FLORENCE",
+    "connections": 35,
+    "boxes": 35,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "HATTON ES",
+    "area": "HATTON ES",
+    "connections": 64,
+    "boxes": 65,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "MALBROUGH",
+    "area": "MALBROUGH",
+    "connections": 41,
+    "boxes": 41,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "MALLIYAPU ES",
+    "area": "MALLIYAPU ES",
+    "connections": 53,
+    "boxes": 54,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "MARSK",
+    "area": "MARSK",
+    "connections": 85,
+    "boxes": 85,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "MONTIFIOR",
+    "area": "MONTIFIOR",
+    "connections": 62,
+    "boxes": 62,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "PANMURE",
+    "area": "PANMURE",
+    "connections": 75,
+    "boxes": 79,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "STRATHON",
+    "area": "STRATHON",
+    "connections": 95,
+    "boxes": 96,
+    "billing_start": 10,
+    "billing_end": 14
+  },
+  {
+    "billing_group": "APPROCH ROAD FRUTILL",
+    "area": "HATTON",
+    "connections": 1,
+    "boxes": 1,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "ARIYAGAMA",
+    "area": "HATTON",
+    "connections": 62,
+    "boxes": 70,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "B.TOWN",
+    "area": "HATTON",
+    "connections": 109,
+    "boxes": 112,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "BJAU KOTTAGE",
+    "area": "HATTON",
+    "connections": 30,
+    "boxes": 30,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "BUS STAND",
+    "area": "HATTON",
+    "connections": 15,
+    "boxes": 15,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "CIRCULAR ROAD",
+    "area": "HATTON",
+    "connections": 63,
+    "boxes": 68,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "DEPPOT ROAD",
+    "area": "HATTON",
+    "connections": 7,
+    "boxes": 7,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "DICKOYA HOSPITAL",
+    "area": "HATTON",
+    "connections": 3,
+    "boxes": 3,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "DICKOYA ROAD",
+    "area": "HATTON",
+    "connections": 3,
+    "boxes": 3,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "DIMBULLA ROAD",
+    "area": "HATTON",
+    "connections": 60,
+    "boxes": 70,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "DUMBRUGIRIYA",
+    "area": "HATTON",
+    "connections": 49,
+    "boxes": 50,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "DUNBAR ROAD",
+    "area": "HATTON",
+    "connections": 49,
+    "boxes": 58,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "HATTON HOUSE",
+    "area": "HATTON",
+    "connections": 2,
+    "boxes": 3,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "HATTON POLICE",
+    "area": "HATTON",
+    "connections": 9,
+    "boxes": 9,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "HATTON TOWN",
+    "area": "HATTON",
+    "connections": 16,
+    "boxes": 18,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "HIJIRAPURA",
+    "area": "HATTON",
+    "connections": 101,
+    "boxes": 105,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "HILL STREET",
+    "area": "HATTON",
+    "connections": 16,
+    "boxes": 17,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "KANDHAIYA BUILDING",
+    "area": "HATTON",
+    "connections": 13,
+    "boxes": 14,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "MAIN STREET",
+    "area": "HATTON",
+    "connections": 2,
+    "boxes": 2,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "MALLIYAPU TOWN",
+    "area": "HATTON",
+    "connections": 9,
+    "boxes": 13,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "MARKET",
+    "area": "HATTON",
+    "connections": 17,
+    "boxes": 18,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "MENDIS MAWATHA",
+    "area": "HATTON",
+    "connections": 32,
+    "boxes": 34,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "MR TOWN",
+    "area": "HATTON",
+    "connections": 7,
+    "boxes": 11,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "PONNAGAR",
+    "area": "HATTON",
+    "connections": 2,
+    "boxes": 9,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "SAI STREET",
+    "area": "HATTON",
+    "connections": 8,
+    "boxes": 8,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "SAMANALAGAMA",
+    "area": "HATTON",
+    "connections": 35,
+    "boxes": 38,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "SIDE STREET",
+    "area": "HATTON",
+    "connections": 2,
+    "boxes": 2,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "STAR SQUARE BUILDING",
+    "area": "HATTON",
+    "connections": 1,
+    "boxes": 1,
+    "billing_start": 25,
+    "billing_end": 29
+  },
+  {
+    "billing_group": "SUNDAY FAIR",
+    "area": "HATTON",
+    "connections": 5,
+    "boxes": 5,
+    "billing_start": 25,
+    "billing_end": 29
+  }
+]

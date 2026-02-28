@@ -1,0 +1,259 @@
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/apiClient";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { RefreshCcw, Users, Check } from "lucide-react";
+import { CustomerAccountLayout } from "@/components/customer/CustomerAccountLayout";
+import { useCustomer } from "@/hooks/queries/customer";
+import SendSMSDialogSingle from "@/components/SendSMSDialogSingle";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+
+interface AccountCustomerListItem {
+  id: string;
+  name: string;
+  connection_id: string;
+  phone: string;
+  area?: {
+    name: string;
+    code: string;
+  } | null;
+}
+
+const Accounts = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
+  const [smsDialogOpen, setSmsDialogOpen] = useState(false);
+  const [posSignal, setPosSignal] = useState(0);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const {
+    data: customers,
+    isLoading: customersLoading,
+    isError: customersError,
+    refetch: refetchCustomers,
+  } = useQuery({
+    queryKey: ["accounts-customers"],
+    queryFn: async () => {
+      const response = await apiClient.get("/customers", { params: { include: "area" } });
+      const rows = response.data?.data ?? response.data;
+      return (rows || []).map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        phone: row.phone,
+        connection_id: row.connection_id,
+        area: row.area ?? row.areas ?? null,
+      })) as AccountCustomerListItem[];
+    },
+  });
+
+  const {
+    data: accountData,
+    isLoading: accountLoading,
+    isError: accountError,
+    refetch: refetchAccount,
+  } = useCustomer(selectedCustomerId || undefined);
+
+  const filteredCustomers = useMemo(() => {
+    if (!customers) return [];
+    if (!searchTerm.trim()) return customers;
+    const term = searchTerm.toLowerCase();
+    return customers.filter(
+      (customer) =>
+        customer.name.toLowerCase().includes(term) ||
+        customer.connection_id.toLowerCase().includes(term) ||
+        customer.phone.toLowerCase().includes(term) ||
+        customer.area?.name.toLowerCase().includes(term) ||
+        customer.area?.code.toLowerCase().includes(term)
+    );
+  }, [customers, searchTerm]);
+
+  const handleAddPaymentClick = () => {
+    setPosSignal((signal) => signal + 1);
+    const panel = document.getElementById("pos-panel");
+    panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const selectedCustomer = customers?.find((customer) => customer.id === selectedCustomerId);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Customer Accounts</h1>
+          <p className="text-sm text-muted-foreground">
+            Search for a customer to view their 360 POS workspace.
+          </p>
+        </div>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Users className="h-4 w-4" />
+            Select Customer
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Search & Select</label>
+            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  <span className="flex flex-col items-start">
+                    {selectedCustomerId
+                      ? customers?.find((c) => c.id === selectedCustomerId)?.name || "Choose customer"
+                      : "Choose customer"}
+                    <span className="text-xs text-muted-foreground">
+                      {selectedCustomerId
+                        ? customers?.find((c) => c.id === selectedCustomerId)?.connection_id
+                        : "Search by name, ID, phone or area"}
+                    </span>
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0 w-[380px]">
+                <Command>
+                  <CommandInput
+                    placeholder="Search customers..."
+                    value={searchTerm}
+                    onValueChange={setSearchTerm}
+                  />
+                  <CommandEmpty>No customers match your search.</CommandEmpty>
+                  <CommandGroup className="max-h-80 overflow-auto">
+                    {filteredCustomers.map((customer) => (
+                      <CommandItem
+                        key={customer.id}
+                        value={customer.id}
+                        onSelect={() => {
+                          setSelectedCustomerId(customer.id);
+                          setPickerOpen(false);
+                        }}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium">{customer.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {customer.connection_id} • {customer.phone}
+                          </span>
+                          {customer.area && (
+                            <span className="text-xs text-muted-foreground">
+                              {customer.area.code} • {customer.area.name}
+                            </span>
+                          )}
+                        </div>
+                        <Check
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            selectedCustomerId === customer.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          {selectedCustomer && (
+            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+              <div className="flex flex-wrap items-center gap-3">
+                <div>
+                  <p className="font-semibold">{selectedCustomer.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedCustomer.connection_id} • {selectedCustomer.phone}
+                  </p>
+                </div>
+                {selectedCustomer.area && (
+                  <Badge variant="outline" className="text-xs">
+                    {selectedCustomer.area.code} • {selectedCustomer.area.name}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {customersLoading && (
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      )}
+
+      {customersError && (
+        <Alert variant="destructive">
+          <AlertTitle>Unable to load customers</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            There was an error fetching customers. Please retry.
+            <Button size="sm" variant="outline" onClick={() => refetchCustomers()} className="ml-4 gap-1">
+              <RefreshCcw className="h-4 w-4" />
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {selectedCustomerId ? (
+        accountLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-40 w-full rounded-xl" />
+            <Skeleton className="h-96 w-full rounded-xl" />
+          </div>
+        ) : accountError ? (
+          <Alert variant="destructive">
+            <AlertTitle>Unable to load account</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              There was an error fetching this customerâ€™s account. Please retry.
+              <Button size="sm" variant="outline" onClick={() => refetchAccount()} className="ml-4 gap-1">
+                <RefreshCcw className="h-4 w-4" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : accountData ? (
+          <CustomerAccountLayout
+            customerId={selectedCustomerId}
+            data={accountData}
+            onSendSMS={() => setSmsDialogOpen(true)}
+            onAddPaymentClick={handleAddPaymentClick}
+            onPaymentSuccess={() => refetchAccount()}
+            paymentPanelSignal={posSignal}
+          />
+        ) : (
+          <Card>
+            <CardContent className="py-10 text-center text-sm text-muted-foreground">
+              No data found for the selected customer.
+            </CardContent>
+          </Card>
+        )
+      ) : (
+        <Card className="border-dashed">
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            Select a customer to load their account workspace.
+          </CardContent>
+        </Card>
+      )}
+
+      {selectedCustomerId && accountData?.customer && (
+        <SendSMSDialogSingle
+          open={smsDialogOpen}
+          onOpenChange={setSmsDialogOpen}
+          customerId={accountData.customer.id}
+          name={accountData.customer.name}
+          phone={accountData.customer.phone}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Accounts;
