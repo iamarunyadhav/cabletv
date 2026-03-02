@@ -67,6 +67,19 @@ class CustomerSeeder extends Seeder
                 $sequence = (int) ($record['connection_no'] ?? 0) ?: null;
                 $connectionMeta = $this->connectionIdService->generate($billingGroup, $sequence);
                 $connectionId = $connectionMeta['connection_id'];
+                $agreementNumber = $this->sanitizeAgreementNumber(
+                    $record['agreement_numbers'][0] ?? $record['agreement_number_raw'] ?? null,
+                );
+
+                if (
+                    $agreementNumber !== null
+                    && Customer::query()
+                        ->where('agreement_number', $agreementNumber)
+                        ->where('connection_id', '!=', $connectionId)
+                        ->exists()
+                ) {
+                    $agreementNumber = null;
+                }
 
                 $rawBoxNumbers = $record['box_numbers'] ?? [];
                 $hasRealBoxes = $this->hasRealBoxes($rawBoxNumbers);
@@ -83,7 +96,7 @@ class CustomerSeeder extends Seeder
                         'phone' => $record['phone_numbers'][0] ?? 'NO_DATA',
                         'nic' => $record['nic'] ?? null,
                         'address' => $record['address'] ?? 'NO_DATA',
-                        'agreement_number' => $record['agreement_numbers'][0] ?? $record['agreement_number_raw'] ?? null,
+                        'agreement_number' => $agreementNumber,
                         'area_id' => $billingGroup->area_id,
                         'billing_group_id' => $billingGroup->id,
                         'status' => $customerStatus,
@@ -200,6 +213,21 @@ class CustomerSeeder extends Seeder
         }
 
         return $boxNumbers;
+    }
+
+    private function sanitizeAgreementNumber(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        if ($value === '' || strtoupper($value) === 'NO_DATA') {
+            return null;
+        }
+
+        return $value;
     }
 
     private function parseDate(?string $value): ?Carbon
