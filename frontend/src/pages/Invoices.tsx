@@ -5,8 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
-import { Pencil, Trash2, Download, Printer, Ticket } from "lucide-react";
+import { Pencil, Trash2, Download, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { EditInvoiceDialog } from "@/components/EditInvoiceDialog";
 import {
@@ -19,8 +25,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { generateInvoicePDF, downloadPDF, printPDF, generateThermalInvoicePDF } from "@/lib/pdfGenerator";
+import { generateInvoicePDF, downloadPDF } from "@/lib/pdfGenerator";
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
+import { printInvoiceDocument } from "@/lib/printHelpers";
 
 const Invoices = () => {
   const queryClient = useQueryClient();
@@ -111,20 +118,9 @@ const Invoices = () => {
 
   const handlePrintPDF = async (invoice: any) => {
     try {
-      const doc = await generateInvoicePDF(buildInvoicePayload(invoice));
-      printPDF(doc);
+      await printInvoiceDocument(invoice.id);
     } catch (error) {
-      toast.error("Failed to generate PDF");
-      console.error(error);
-    }
-  };
-
-  const handleThermalPrint = async (invoice: any) => {
-    try {
-      const doc = await generateThermalInvoicePDF(buildInvoicePayload(invoice));
-      printPDF(doc);
-    } catch (error) {
-      toast.error("Failed to generate thermal invoice");
+      toast.error("Failed to print invoice");
       console.error(error);
     }
   };
@@ -206,27 +202,26 @@ const Invoices = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handlePrintPDF(invoice)}
-                          title="Print"
-                        >
-                          <Printer className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleThermalPrint(invoice)}
-                          title="Thermal / Small bill"
-                        >
-                          <Ticket className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
                           onClick={() => setEditingInvoice(invoice)}
                           title="Edit"
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" title="Print options">
+                              <Printer className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handlePrintPDF(invoice)}>
+                              Print Invoice (A4)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem disabled>
+                              Print Receipt (80mm)
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button
                           size="sm"
                           variant="ghost"

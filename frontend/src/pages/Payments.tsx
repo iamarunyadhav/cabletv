@@ -5,8 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
-import { Pencil, Trash2, Download, Printer, Ticket } from "lucide-react";
+import { Pencil, Trash2, Download, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { EditPaymentDialog } from "@/components/EditPaymentDialog";
 import { Input } from "@/components/ui/input";
@@ -20,11 +26,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { generateReceiptPDF, downloadPDF, printPDF, generateThermalReceiptPDF } from "@/lib/pdfGenerator";
+import { generateReceiptPDF, downloadPDF } from "@/lib/pdfGenerator";
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import { getPaymentMethodLabel } from "@/constants/paymentMethods";
 import { fetchCompanyProfile } from "@/lib/companyProfile";
 import { resolvePaymentDateTime } from "@/lib/paymentDate";
+import { printInvoiceDocument, printPaymentReceiptDocument } from "@/lib/printHelpers";
 
 const Payments = () => {
   const queryClient = useQueryClient();
@@ -171,22 +178,34 @@ const Payments = () => {
 
   const handlePrintReceipt = async (payment: any) => {
     try {
-      const company = companyProfile ?? (await fetchCompanyProfile());
-      const doc = await generateReceiptPDF(buildReceiptPayload(payment), company);
-      printPDF(doc);
+      await printPaymentReceiptDocument(payment.id);
     } catch (error) {
-      toast.error("Failed to generate receipt");
+      toast.error("Failed to print receipt");
       console.error(error);
     }
   };
 
-  const handleThermalReceipt = async (payment: any) => {
+  const resolveLinkedInvoiceId = (payment: any): string | null => {
+    const allocations = payment?.allocations;
+    if (!Array.isArray(allocations) || allocations.length === 0) {
+      return null;
+    }
+
+    const first = allocations[0];
+    return first?.invoice_id ?? first?.invoiceId ?? first?.invoice?.id ?? null;
+  };
+
+  const handlePrintLinkedInvoice = async (payment: any) => {
+    const linkedInvoiceId = resolveLinkedInvoiceId(payment);
+    if (!linkedInvoiceId) {
+      toast.error("No invoice linked to this payment.");
+      return;
+    }
+
     try {
-      const company = companyProfile ?? (await fetchCompanyProfile());
-      const doc = await generateThermalReceiptPDF(buildReceiptPayload(payment), company);
-      printPDF(doc);
+      await printInvoiceDocument(linkedInvoiceId);
     } catch (error) {
-      toast.error("Failed to generate receipt");
+      toast.error("Failed to print linked invoice");
       console.error(error);
     }
   };
@@ -341,22 +360,24 @@ const Payments = () => {
                         >
                           <Download className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handlePrintReceipt(payment)}
-                          title="Print Receipt"
-                        >
-                          <Printer className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleThermalReceipt(payment)}
-                          title="Thermal / Small bill"
-                        >
-                          <Ticket className="w-4 h-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" title="Print options">
+                              <Printer className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handlePrintReceipt(payment)}>
+                              Print Receipt (80mm)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!resolveLinkedInvoiceId(payment)}
+                              onClick={() => handlePrintLinkedInvoice(payment)}
+                            >
+                              Print Invoice (A4)
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button
                           size="sm"
                           variant="ghost"

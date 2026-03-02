@@ -29,6 +29,7 @@ import Agents from "./pages/Agents";
 import SMSAnalytics from "./pages/SMSAnalytics";
 import SMSManagement from "./pages/SMSManagement";
 import Receipt from "./pages/Receipt";
+import PrintDocument from "./pages/PrintDocument";
 import ImportLegacyData from "./pages/ImportLegacyData";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/receipt/:receiptNumber" element={<Receipt />} />
+            <Route path="/print" element={<PrintDocument />} />
             <Route
               path="/dashboard"
               element={
