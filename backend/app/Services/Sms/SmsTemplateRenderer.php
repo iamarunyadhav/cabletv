@@ -9,10 +9,10 @@ class SmsTemplateRenderer
      */
     public function render(string $body, array $params): string
     {
-        foreach ($params as $key => $value) {
-            $body = str_replace('{'.$key.'}', (string) ($value ?? ''), $body);
-        }
+        return preg_replace_callback('/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}|\{\s*([a-zA-Z0-9_]+)\s*\}/', function (array $matches) use ($params): string {
+            $key = $matches[1] ?: $matches[2];
 
-        return $body;
+            return (string) ($params[$key] ?? '');
+        }, $body) ?? $body;
     }
 }

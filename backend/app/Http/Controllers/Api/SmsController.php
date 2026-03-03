@@ -318,10 +318,13 @@ class SmsController extends Controller
             $minPayment = max(0, $balance - $limit);
 
             $payload = [
+                'name' => $customer->name,
                 'customer_name' => $customer->name,
+                'phone' => $customer->phone ?? '',
                 'balance' => number_format($balance, 2, '.', ','),
                 'min_payment' => number_format($minPayment, 2, '.', ','),
                 'limit' => number_format($limit, 2, '.', ','),
+                'due_date' => '',
                 'billing_group' => $customer->billingGroup?->name ?? '',
                 'area' => $customer->billingGroup?->area?->name ?? '',
             ];
@@ -329,9 +332,28 @@ class SmsController extends Controller
 
         if ($connection) {
             $payload['connection_no'] = $connection->box_number ?? '';
+            $payload['box_number'] = $connection->box_number ?? '';
             $payload['package'] = $connection->package?->name ?? '';
         }
 
-        return array_merge($payload, Arr::map($params, fn ($value) => is_scalar($value) ? $value : ''));
+        $resolved = array_merge($payload, Arr::map($params, fn ($value) => is_scalar($value) ? $value : ''));
+
+        if (! isset($resolved['customer_name']) && isset($resolved['name'])) {
+            $resolved['customer_name'] = $resolved['name'];
+        }
+
+        if (! isset($resolved['name']) && isset($resolved['customer_name'])) {
+            $resolved['name'] = $resolved['customer_name'];
+        }
+
+        if (! isset($resolved['connection_no']) && isset($resolved['box_number'])) {
+            $resolved['connection_no'] = $resolved['box_number'];
+        }
+
+        if (! isset($resolved['box_number']) && isset($resolved['connection_no'])) {
+            $resolved['box_number'] = $resolved['connection_no'];
+        }
+
+        return $resolved;
     }
 }
