@@ -167,7 +167,7 @@ class BillingAutomationService
             $this->sendNotification(
                 $cycle,
                 $customer,
-                'overdue',
+                'overdue_notice',
                 [
                     'outstanding' => $outstanding,
                     'limit' => $limit,
@@ -260,14 +260,18 @@ class BillingAutomationService
 
         $minimumPayment = max(0, (float) ($payload['outstanding'] ?? 0) - (float) ($payload['limit'] ?? 0));
         $basePayload = [
+            'name' => $customer->name,
             'customer_name' => $customer->name,
+            'phone' => $customer->phone,
             'balance' => $this->formatAmount((float) ($payload['outstanding'] ?? 0)),
             'min_payment' => $this->formatAmount($minimumPayment),
             'limit' => $this->formatAmount((float) ($payload['limit'] ?? 0)),
+            'due_date' => $payload['due_date'] ?? '',
             'cycle_month' => $cycle?->cycle_month ?? '',
             'cycle_year' => $cycle?->cycle_year ?? '',
             'disconnect_date' => $payload['disconnect_date'] ?? $cycle?->disconnect_date?->toDateString() ?? '',
-            'connection_no' => $payload['connection_no'] ?? '',
+            'connection_no' => $payload['connection_no'] ?? $payload['box_number'] ?? '',
+            'box_number' => $payload['box_number'] ?? $payload['connection_no'] ?? '',
             'package' => $payload['package'] ?? '',
             'reason' => $payload['reason'] ?? '',
         ];

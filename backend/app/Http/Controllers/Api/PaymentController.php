@@ -16,6 +16,16 @@ use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
 {
+    private const PAYMENT_METHOD_ALIASES = [
+        'bank' => PaymentMethod::BankTransfer->value,
+        'online' => PaymentMethod::Upi->value,
+    ];
+
+    private const PAYMENT_METHOD_VARIANTS = [
+        PaymentMethod::BankTransfer->value => [PaymentMethod::BankTransfer->value, 'bank'],
+        PaymentMethod::Upi->value => [PaymentMethod::Upi->value, 'online'],
+    ];
+
     public function __construct(private readonly PaymentService $paymentService) {}
 
     public function index(Request $request)
@@ -36,16 +46,16 @@ class PaymentController extends Controller
             $query->whereDate('payment_date', '<=', $to);
         }
 
-        if ($method = $request->get('method')) {
-            $query->where('payment_method', $method);
+        if ($methods = $this->resolvePaymentMethodVariants($request->string('method')->toString())) {
+            $query->whereIn('payment_method', $methods);
         }
 
         if ($customerId = $request->get('customer_id')) {
             $query->where('customer_id', $customerId);
         }
 
-        if ($paymentMethod = $request->get('payment_method')) {
-            $query->where('payment_method', $paymentMethod);
+        if ($paymentMethods = $this->resolvePaymentMethodVariants($request->string('payment_method')->toString())) {
+            $query->whereIn('payment_method', $paymentMethods);
         }
 
         if ($search = $request->get('search')) {
@@ -94,6 +104,10 @@ class PaymentController extends Controller
     public function update(Request $request, Payment $payment): PaymentResource
     {
         $this->authorize('update', $payment);
+        $normalizedMethod = $this->normalizePaymentMethod($request->input('payment_method'));
+        if ($normalizedMethod !== null) {
+            $request->merge(['payment_method' => $normalizedMethod]);
+        }
 
         $data = $request->validate([
             'amount' => ['required', 'numeric', 'min:0'],
@@ -150,5 +164,30 @@ class PaymentController extends Controller
             'payment' => new PaymentResource($payment),
             'company' => $companySettings,
         ]);
+    }
+
+    private function normalizePaymentMethod(?string $method): ?string
+    {
+        $normalized = strtolower(trim((string) $method));
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        return self::PAYMENT_METHOD_ALIASES[$normalized] ?? $normalized;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolvePaymentMethodVariants(?string $method): array
+    {
+        $normalized = $this->normalizePaymentMethod($method);
+
+        if ($normalized === null) {
+            return [];
+        }
+
+        return self::PAYMENT_METHOD_VARIANTS[$normalized] ?? [$normalized];
     }
 }

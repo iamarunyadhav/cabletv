@@ -8,9 +8,27 @@ use Illuminate\Validation\Rule;
 
 class PaymentStoreRequest extends FormRequest
 {
+    private const PAYMENT_METHOD_ALIASES = [
+        'bank' => PaymentMethod::BankTransfer->value,
+        'online' => PaymentMethod::Upi->value,
+    ];
+
     public function authorize(): bool
     {
         return $this->user()?->can('create', \App\Models\Payment::class) ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $method = strtolower(trim((string) $this->input('payment_method')));
+
+        if ($method === '') {
+            return;
+        }
+
+        $this->merge([
+            'payment_method' => self::PAYMENT_METHOD_ALIASES[$method] ?? $method,
+        ]);
     }
 
     public function rules(): array

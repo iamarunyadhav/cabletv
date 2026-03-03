@@ -16,6 +16,15 @@ class SmsAutomationSettingsService
         'payment_receipt' => 'sms_auto_receipt_enabled',
     ];
 
+    private const WORKFLOW_DEFAULT_TEMPLATE_MAP = [
+        'monthly_renewal' => 'monthly_renewal',
+        'friendly_reminder' => 'friendly_reminder',
+        'disconnect_notice' => 'disconnect_notice',
+        'overdue_notice' => 'overdue',
+        'payment_receipt' => 'payment_receipt',
+        'suspend_notice' => 'suspend_notice',
+    ];
+
     /**
      * @var array<string, array{enabled: bool, template_key: ?string, description: ?string}>
      */
@@ -85,7 +94,7 @@ class SmsAutomationSettingsService
 
         return [
             'enabled' => $legacyEnabled,
-            'template_key' => $workflowKey,
+            'template_key' => self::WORKFLOW_DEFAULT_TEMPLATE_MAP[$workflowKey] ?? $workflowKey,
             'description' => null,
         ];
     }

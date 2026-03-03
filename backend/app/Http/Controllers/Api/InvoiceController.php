@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\InvoiceResource;
 use App\Models\Invoice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class InvoiceController extends Controller
 {
@@ -72,10 +74,10 @@ class InvoiceController extends Controller
             'due_date' => ['required', 'date'],
             'total_amount' => ['required', 'numeric', 'min:0'],
             'paid_amount' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', 'string', 'max:50'],
+            'status' => ['required', Rule::in(InvoiceStatus::values())],
         ]);
 
-        $invoice->update($data);
+        $invoice->update($this->normalizeInvoicePayload($data));
 
         return new InvoiceResource(
             $invoice->fresh(['items', 'customer', 'connection.customer.billingGroup'])
@@ -96,5 +98,54 @@ class InvoiceController extends Controller
         $invoice->delete();
 
         return response()->json(['message' => 'Invoice deleted.']);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizeInvoicePayload(array $data): array
+    {
+        $totalAmount = round((float) $data['total_amount'], 2);
+        $paidAmount = round((float) $data['paid_amount'], 2);
+        $status = (string) $data['status'];
+
+        if ($totalAmount <= 0) {
+            $data['total_amount'] = 0.0;
+            $data['paid_amount'] = 0.0;
+            $data['status'] = InvoiceStatus::Paid->value;
+
+            return $data;
+        }
+
+        $paidAmount = min(max($paidAmount, 0.0), $totalAmount);
+        $maxPartialPaid = max(0.0, round($totalAmount - 0.01, 2));
+
+        if ($status === InvoiceStatus::Paid->value) {
+            $paidAmount = $totalAmount;
+        }
+
+        if ($status === InvoiceStatus::Unpaid->value) {
+            $paidAmount = 0.0;
+        }
+
+        if ($status === InvoiceStatus::PartiallyPaid->value) {
+            if ($maxPartialPaid <= 0) {
+                $status = InvoiceStatus::Paid->value;
+                $paidAmount = $totalAmount;
+            } else {
+                $paidAmount = min(max($paidAmount, 0.01), $maxPartialPaid);
+            }
+        }
+
+        if ($status === InvoiceStatus::Overdue->value) {
+            $paidAmount = min($paidAmount, $maxPartialPaid);
+        }
+
+        $data['status'] = $status;
+        $data['total_amount'] = $totalAmount;
+        $data['paid_amount'] = $paidAmount;
+
+        return $data;
     }
 }
